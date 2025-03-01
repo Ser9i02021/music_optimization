@@ -72,9 +72,9 @@ def lick_classification(lick_file_path: str):
         lick_classes.append("C4")
         all_false = False
 
-    # C5 (SwP)
-    if first_note[0] == "R":
-        print("SwP")
+    # C5 (SwP <= 1)
+    if first_note[0] == "R" and int(first_note[35:]) <= 1:
+        print("SwP <= 1")
         lick_classes.append("C5")
         all_false = False
 
@@ -270,9 +270,13 @@ def select_N_lick_samples(n: int):
 
 
 
-    #print(lick_samples)
+    classified_licks = []
     # Classify the selected samples
     for lick in lick_samples:
-        lick_classification(lick)
+        classified_lick = lick_classification(lick)
+        classified_licks.append(classified_lick)
 
-select_N_lick_samples(5)
+    return classified_licks
+
+select_N_lick_samples(5) # Only 4 due to the fact that the repetition licks folder was not filled yet
+
