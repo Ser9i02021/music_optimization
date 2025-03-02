@@ -3,12 +3,12 @@ from lxml import etree
 from label_chosen_licks import select_N_lick_samples 
 
 
-licks_list = select_N_lick_samples(5)
+licks_list = select_N_lick_samples(8)
 
 for i in range(len(licks_list)):
     print(licks_list[i])
 
-cost_matrix = np.full((4, 4), 100)
+cost_matrix = np.full((8, 8), 100)
 
 for i in range(len(licks_list)):
     for j in range(len(licks_list)):
