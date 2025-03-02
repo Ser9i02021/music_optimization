@@ -92,7 +92,7 @@ def lick_classification(lick_file_path: str):
 
     # C8 (Turnaround)
     measure = root.find(".//measure")
-    lick_label = measure.find("lick-label").text
+    lick_label = measure.find("lick-label").text if measure.find("lick-label") is not None else None
     if lick_label == "turnaround":
         print("turnaround")
         lick_classes.append("C8")
@@ -139,7 +139,7 @@ def select_N_lick_samples(n: int):
 
     for i in range(n):
 
-        if i == n - 2 and (not (At_least_one_repetition and At_least_one_turnaround)): # Garantee that there is at least one repetition and one turnaround lick
+        if i == n - 3 and (not (At_least_one_repetition and At_least_one_turnaround)): # Garantee that there is at least one repetition and one turnaround lick
             if not (At_least_one_repetition or At_least_one_turnaround): # Chose randomly one repetition and one turnaround licks in this order
                 # Chose randomly one repetition lick
                 if rep_files:
@@ -178,7 +178,6 @@ def select_N_lick_samples(n: int):
             else:
                 # If at least one repetition lick was chosen, one turnaround lick is randomly chosen
                 if At_least_one_repetition:
-                     # Ensure there are files in the folder
                     if turn_files:
                         while True:
                             random_turn_file = random.choice(turn_files) 
@@ -196,8 +195,7 @@ def select_N_lick_samples(n: int):
                 
                 # If at least one turnaround lick was chosen, one repetition lick is randomly chosen
                 else:
-                    '''
-                    # Ensure there are files in the folder
+                    
                     if rep_files:
                         while True:
                             random_rep_file = random.choice(rep_files)  
@@ -212,61 +210,63 @@ def select_N_lick_samples(n: int):
                                 continue
                     else:
                         print("No files found in the folder.")
-                    '''
-                    pass
+                    
         
         else:
-            random_number = random.randint(331, 342) # For the random choice of a lick sample
-            if random_number < 100: # Needs to be adjusted
-                # Choose randomly a FSM lick
-                if fsm_files:
-                    while True:
-                        random_fsm_file = random.choice(fsm_files) 
-                        random_fsm_file_path = os.path.join(FMS_dir, random_fsm_file)
-                        print("Randomly selected fsm lick file:", random_fsm_file_path)
-
-                        if random_fsm_file_path not in lick_samples:    
-                            lick_samples.append(random_fsm_file_path)
-                            break
-                        else:
-                            continue
-                else:
-                    print("No files found in the folder.")
-
-            # Choose randomly a repetition lick
-            elif random_number >= 100 and random_number <= 330: # Needs to be adjusted (only 100)
-                # Ensure there are files in the folder
-                if rep_files:
-                    while True:
-                        random_rep_file = random.choice(rep_files)  
-                        random_rep_file_path = os.path.join(rep_dir, random_rep_file)
-                        print("Randomly selected repetition lick file:", random_rep_file_path)
-
-                        if random_rep_file_path not in lick_samples:
-                            lick_samples.append(random_rep_file_path)
-                            At_least_one_repetition = True
-                            break
-                        else:
-                            continue
-                else:
-                    print("No files found in the folder.")
-
-            # Choose randomly a turnaround lick
+            if i == 0 or i == n - 1:
+                rand_num = random.randint(1, 50) # For the random choice of a regular lick sample (50 must be adjusted to the quantity of regular licks in FSM folder)
+                # Start from here!        
             else:
-                if turn_files:
-                    while True:
-                        random_turn_file = random.choice(turn_files) 
-                        random_turn_file_path = os.path.join(turn_dir, random_turn_file)
-                        print("Randomly selected turnaround lick file:", random_turn_file_path)
+                random_number = random.randint(331, 342) # For the random choice of a lick sample
+                if random_number < 100: # Needs to be adjusted
+                    # Choose randomly a FSM lick
+                    if fsm_files:
+                        while True:
+                            random_fsm_file = random.choice(fsm_files) 
+                            random_fsm_file_path = os.path.join(FMS_dir, random_fsm_file)
+                            print("Randomly selected fsm lick file:", random_fsm_file_path)
 
-                        if random_turn_file_path not in lick_samples:
-                            lick_samples.append(random_turn_file_path)
-                            At_least_one_turnaround = True
-                            break
-                        else:
-                            continue
+                            if random_fsm_file_path not in lick_samples:    
+                                lick_samples.append(random_fsm_file_path)
+                                break
+                            else:
+                                continue
+                    else:
+                        print("No files found in the folder.")
+
+                # Choose randomly a repetition lick
+                elif random_number >= 100 and random_number <= 330: # Needs to be adjusted (only 100)
+                    if rep_files:
+                        while True:
+                            random_rep_file = random.choice(rep_files)  
+                            random_rep_file_path = os.path.join(rep_dir, random_rep_file)
+                            print("Randomly selected repetition lick file:", random_rep_file_path)
+
+                            if random_rep_file_path not in lick_samples:
+                                lick_samples.append(random_rep_file_path)
+                                At_least_one_repetition = True
+                                break
+                            else:
+                                continue
+                    else:
+                        print("No files found in the folder.")
+
+                # Choose randomly a turnaround lick
                 else:
-                    print("No files found in the folder.")
+                    if turn_files:
+                        while True:
+                            random_turn_file = random.choice(turn_files) 
+                            random_turn_file_path = os.path.join(turn_dir, random_turn_file)
+                            print("Randomly selected turnaround lick file:", random_turn_file_path)
+
+                            if random_turn_file_path not in lick_samples:
+                                lick_samples.append(random_turn_file_path)
+                                At_least_one_turnaround = True
+                                break
+                            else:
+                                continue
+                    else:
+                        print("No files found in the folder.")
 
 
 
@@ -278,5 +278,5 @@ def select_N_lick_samples(n: int):
 
     return classified_licks
 
-select_N_lick_samples(5) # Only 4 due to the fact that the repetition licks folder was not filled yet
+#select_N_lick_samples(5) # Only 4 due to the fact that the repetition licks folder was not filled yet
 
