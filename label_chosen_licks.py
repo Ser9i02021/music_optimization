@@ -367,6 +367,11 @@ def select_N_lick_samples(n: int):
                             print("Randomly selected turnaround_with_pause lick file:", random_file_path)
 
                         if random_file_path not in lick_samples:
+                            if random_file_path.find("repetition") != -1:
+                                At_least_one_repetition = True
+                            elif random_file_path.find("turnaround") != -1:
+                                At_least_one_turnaround = True
+                            
                             lick_samples.append(random_file_path)
                             break
                         else:
