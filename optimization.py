@@ -21,7 +21,7 @@ def power_set(iterable, min_size, max_size):
 
 
 
-licks_list, origin_of_classified_licks = select_N_lick_samples(4) # Select 2 random licks plus inital 
+licks_list, origin_of_classified_licks = select_N_lick_samples(17) # Select 15 random licks plus inital 
                                                                   # and final dummy licks
 p = build_cost_matrix(licks_list) # Build the cost matrix
 
@@ -72,10 +72,10 @@ b = 4  # Quantity of bars in the solo (will be setted arbitrarily)
 r = 1  # Constraint (5) (must be 1)
 s = 3  # Constraint (6) (must be 3)
 
-'''
+
 # 2 < |S| < b
 S = power_set(L_prime, 3, b - 1) #  # Subsets of L_prime
-'''
+
 
 # Define the optimization problem
 model = LpProblem("Integer_Programming_Model", LpMinimize)
@@ -88,15 +88,44 @@ y = {i: LpVariable(f"y_{i}", cat=LpBinary) for i in L_prime}
 model += lpSum(p[i][j] * x[i, j] for (i, j) in A)
 
 # Constraints
+# Additional constraint to make the modified formulation of (2) and (3) work
+model += x[0, L[-1]] == 0
+
+# (2)
+for i in L:
+    if i == 0:
+        model += lpSum(x[i, j] for j in L if (i, j) in A) == 1
+    elif i > 0 and i < L[-1]:
+        model += lpSum(x[i, j] for j in L if (i, j) in A) == y[i]
+    else:
+        model += lpSum(x[i, j] for j in L if (i, j) in A) == 0
+
+
+'''
 L_minus_n_plus_1 = L.copy()
 L_minus_n_plus_1.remove(L[-1])
+L_minus_n_plus_1.remove(L[0]) # Modification to the formulation on the paper
 for i in L_prime:
     model += lpSum(x[i, j] for j in L_minus_n_plus_1 if (i, j) in A) == y[i]
+'''
+# (3)
+for j in L:
+    if j == 0:
+        model += lpSum(x[i, j] for i in L if (i, j) in A) == 0
+    elif j > 0 and j < L[-1]:
+        model += lpSum(x[i, j] for i in L if (i, j) in A) == y[j]
+    else:
+        model += lpSum(x[i, j] for i in L if (i, j) in A) == 1
 
+
+
+'''
 L_minus_0 = L.copy()
 L_minus_0.remove(L[0])
+L_minus_0.remove(L[-1]) # Modification to the formulation on the paper
 for j in L_prime:
     model += lpSum(x[i, j] for i in L_minus_0 if (i, j) in A) == y[j]
+'''
 
 #model += lpSum(c[i] * y[i] for i in L_prime) == b  # Constraint (4)
 
@@ -115,22 +144,60 @@ model += lpSum(x[i, len(L_prime)+1] for i in T) == 1
 for (i, j) in A:
     if i < j:
         model += x[i, j] + x[j, i] <= 1
-'''
-# Constraint (9) - Connectivity constraint
+
+# Constraint (9) - Connectivity constraint (may be removed considering the new formulated constraints (2) and (3))
 for subset in S:
     not_subset = L
     for subset_element in subset:
         not_subset.remove(subset_element)
     model += lpSum(x[i, j] for i in subset for j in not_subset) >= 1
-'''
+
 
 # Solve the model
 model.solve()
 
+graph_path = [] # List of the edges used in the solution (unordered)
+
 # Print solution
 for (i, j) in A:
     print(f"x[{i}, {j}] = {x[i, j].varValue}")
+    if x[i, j].varValue == 1:
+        graph_path.append((i, j))
+
+edge1 = graph_path[0]
+graph_path_ordered = [edge1] # List of the edges used in the solution (ordered)
+while True:
+    for edge2 in graph_path:
+        if edge1[1] == edge2[0]:
+            graph_path_ordered.append(edge2)
+            edge1 = edge2
+            break
+    if edge1[1] == L[-1]:
+        break
+
+graph_path_vertices_ordered = [] # List of the vertices used in the solution (ordered)
+for edge in graph_path_ordered:
+    graph_path_vertices_ordered.append(edge[0])
+graph_path_vertices_ordered.append(graph_path_ordered[-1][1])
 
 for i in L_prime:
     print(f"y[{i}] = {y[i].varValue}")
 
+print(graph_path_vertices_ordered)
+print("Objective function value:", model.objective.value())
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Stage 5: Post-processing
