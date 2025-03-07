@@ -4,6 +4,9 @@ from cost_matrix_construction import build_cost_matrix
 from itertools import combinations
 from pulp import LpProblem, LpVariable, lpSum, LpMinimize, LpBinary
 
+from pulp import *
+from collections import defaultdict
+
 
 
 def power_set(iterable, min_size, max_size):
@@ -21,7 +24,7 @@ def power_set(iterable, min_size, max_size):
 
 
 
-licks_list, origin_of_classified_licks = select_N_lick_samples(17) # Select 15 random licks plus inital 
+licks_list = select_N_lick_samples(17) # Select 15 random licks plus inital 
                                                                   # and final dummy licks
 p = build_cost_matrix(licks_list) # Build the cost matrix
 
@@ -73,8 +76,8 @@ r = 1  # Constraint (5) (must be 1)
 s = 3  # Constraint (6) (must be 3)
 
 
-# 2 < |S| < b
-S = power_set(L_prime, 3, b - 1) #  # Subsets of L_prime
+# 2 < |S| < b (or len(L_prime) (modified from the paper))
+S = power_set(L_prime, 3, len(L_prime)) #  # Subsets of L_prime
 
 
 # Define the optimization problem
@@ -146,15 +149,111 @@ for (i, j) in A:
         model += x[i, j] + x[j, i] <= 1
 
 # Constraint (9) - Connectivity constraint (may be removed considering the new formulated constraints (2) and (3))
+'''
 for subset in S:
-    not_subset = L
+    #not_subset = L
     for subset_element in subset:
-        not_subset.remove(subset_element)
-    model += lpSum(x[i, j] for i in subset for j in not_subset) >= 1
+
+        model += lpSum(x[i, j] for i in subset for j in subset if (i, j) in A) >= 1
+'''
+'''
+Z = []
+for (i, j) in A:
+    if x[i, j].varValue == 1:
+        Z.append((i, j))
+
+#print(Z)
+edge1 = Z[0]
+w = True
+while w:
+    for edge2 in Z:
+        if edge1[1] == edge2[0]:
+            Z.remove(edge1)
+            edge1 = edge2
+            if edge2[1] == L[-1]:
+                Z.remove(edge2)
+                w = False
+                break
+
+
+#print(Z)
+
+# Remove all remaining cycles
+Subtours = []
+while len(Z) > 0:
+    edge1 = Z[0]
+    edge0 = Z[0]
+    Subtour = [edge1]
+    w = True
+    while w:
+        for edge2 in Z:
+            if edge1[1] == edge2[0]:
+                Subtour.append(edge2)
+                Z.remove(edge1)
+                edge1 = edge2
+                if edge2[1] == edge0[0]:
+                    Z.remove(edge2)
+                    w = False
+                    break
+    Subtours.append(Subtour)
+
+for subtour in Subtours:
+    model += lpSum(x[edge[0], edge[1]] for edge in subtour) <= len(Z) - 1
+'''
 
 
 # Solve the model
-model.solve()
+while True:
+    model.solve()
+    # Every iteration, we try to find a solution. Then we check for subtours.
+    # If there are no subtours, the solution is adopted, otherwise, new constraints are setted
+    # to the model in order to make it avoid utlizing the subtour(s) just found in future solutions
+    Z = []
+    for (i, j) in A:
+        if x[i, j].varValue == 1:
+            Z.append((i, j))
+
+    print(Z)
+    edge1 = Z[0]
+    w = True
+    while w:
+        for edge2 in Z:
+            if edge1[1] == edge2[0]:
+                Z.remove(edge1)
+                edge1 = edge2
+                if edge2[1] == L[-1]:
+                    Z.remove(edge2)
+                    w = False
+                    break
+
+    if len(Z) == 0:
+        break
+    print(Z)
+
+    # Remove all remaining cycles
+    Subtours = []
+    while len(Z) > 0:
+        edge1 = Z[0]
+        edge0 = Z[0]
+        Subtour = [edge1]
+        w = True
+        while w:
+            for edge2 in Z:
+                if edge1[1] == edge2[0]:
+                    Subtour.append(edge2)
+                    Z.remove(edge1)
+                    edge1 = edge2
+                    if edge2[1] == edge0[0]:
+                        Z.remove(edge2)
+                        w = False
+                        break
+        Subtours.append(Subtour)
+    
+    for subtour in Subtours:
+        model += lpSum(x[edge[0], edge[1]] for edge in subtour) == len(subtour) - 1 # Still needs to be validated
+
+
+
 
 graph_path = [] # List of the edges used in the solution (unordered)
 
@@ -186,8 +285,19 @@ for i in L_prime:
 print(graph_path_vertices_ordered)
 print("Objective function value:", model.objective.value())
 
-
-
+'''
+# Visualization of chosen edge in the matrix
+for i in range(len(licks_list)):
+    for j in range(len(licks_list)):
+        if i != j:
+            if x[i, j].varValue == 1:
+                print(p[i][j], end="@ ")
+            else:
+                print(p[i][j], end=" ")
+        else:
+            print(p[i][j], end=" ")
+    print()
+'''
 
 
 
@@ -201,3 +311,9 @@ print("Objective function value:", model.objective.value())
 
 
 # Stage 5: Post-processing
+file_paths_for_the_ordered_licks_in_the_solution = []
+
+for vertex in graph_path_vertices_ordered:
+    file_paths_for_the_ordered_licks_in_the_solution.append(licks_list[vertex][-1])
+
+print(file_paths_for_the_ordered_licks_in_the_solution)
