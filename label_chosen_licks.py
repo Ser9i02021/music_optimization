@@ -106,8 +106,9 @@ def lick_classification(lick_file_path: str):
         #print("any other (regular)")
         lick_classes.append("C9")
 
-
-    lick = [first_note, last_note, lick_classes]  
+    # "lick_file_path" will be lick's ID
+    # Number of bars still needs to be added 
+    lick = [first_note, last_note, lick_classes, lick_file_path]
 
     return lick
 
@@ -385,17 +386,19 @@ def select_N_lick_samples(n: int):
 
 
 
-    origin_of_classified_lick = {} # Dictionary to store the origin file path for each classified lick
-
+    #origin_of_classified_lick = {} # Dictionary to store the origin file path for each classified lick
+    #classified_lick_and_its_origin = {} # Dictionary to store the classified lick and its origin file path
     # Classify the selected samples
     classified_licks = []
     for lick in lick_samples:
         classified_lick = lick_classification(lick)
 
-        origin_of_classified_lick[lick] = classified_lick
+        #origin_of_classified_lick[lick] = classified_lick
+
+        #classified_lick_and_its_origin[classified_lick] = lick
         
         classified_licks.append(classified_lick)
 
-    return classified_licks, origin_of_classified_lick
+    return classified_licks
 
 #select_N_lick_samples(5)
