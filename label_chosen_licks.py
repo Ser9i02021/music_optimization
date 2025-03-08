@@ -45,6 +45,7 @@ def lick_classification(lick_file_path: str):
         print("No notes found in the XML file.")
 
 
+
     # ------------------------------------------------------------------------------
     # Classify it from C1 to C9
     lick_classes = []
@@ -106,9 +107,19 @@ def lick_classification(lick_file_path: str):
         #print("any other (regular)")
         lick_classes.append("C9")
 
+    
+
+
+    # Find duration in bars for each lick
+    if "C8" in lick_classes: # If it is a turnaround lick, it has 2 bars of duration
+        duration_in_bars = 2
+    else: # Else it has 1 bar of duration
+        duration_in_bars = 1
+    
+
     # "lick_file_path" will be lick's ID
     # Number of bars still needs to be added 
-    lick = [first_note, last_note, lick_classes, lick_file_path]
+    lick = [first_note, last_note, lick_classes, duration_in_bars, lick_file_path]
 
     return lick
 
