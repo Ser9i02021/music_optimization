@@ -1,7 +1,7 @@
 import os
 import xml.etree.ElementTree as ET
 
-def merge_multiple_musicxml(input_files, output_file):
+def post_process(input_files, output_file):
     """
     Merges multiple MusicXML 'score-partwise' files (assuming each has a single <part>)
     in the order given by 'input_files'. The measures from the second file onward are
@@ -63,18 +63,29 @@ def merge_multiple_musicxml(input_files, output_file):
         # Now let ElementTree write out the merged <score-partwise> content
         base_tree.write(f, encoding="unicode", xml_declaration=False)
 
-def main():
-    # Example usage:
-    files_to_merge = [
-        "/home/sergio/Downloads/licks_dataset_sampling/FMS/regular/fast/3.xml",
-        "/home/sergio/Downloads/licks_dataset_sampling/turnaround_with_pause/10.xml",
-        "/home/sergio/Downloads/licks_dataset_sampling/turnaround/12.xml"
-        # ... as many as needed, in the order you want them merged
-    ]
-    output_file = "merged_output_3_10_12.xml"
+    return output_file
 
-    merge_multiple_musicxml(files_to_merge, output_file)
-    print(f"Merged MusicXML written to {output_file}")
 
-if __name__ == "__main__":
-    main()
+'''
+file_paths_for_the_ordered_licks_in_the_solution = []
+
+for vertex in graph_path_vertices_ordered:
+    file_paths_for_the_ordered_licks_in_the_solution.append(licks_list[vertex][-1])
+
+#print(file_paths_for_the_ordered_licks_in_the_solution)
+'''    
+'''
+# Example usage:
+files_to_merge = [
+    "/home/sergio/Downloads/licks_dataset_sampling/FMS/regular/fast/3.xml",
+    "/home/sergio/Downloads/licks_dataset_sampling/turnaround_with_pause/10.xml",
+    "/home/sergio/Downloads/licks_dataset_sampling/turnaround/12.xml"
+    # ... as many as needed, in the order you want them merged
+]
+'''
+'''
+output_file = "ordered_licks_optm_output.xml"
+
+post_process(file_paths_for_the_ordered_licks_in_the_solution, output_file)
+print(f"Merged MusicXML written to {output_file}")
+'''
