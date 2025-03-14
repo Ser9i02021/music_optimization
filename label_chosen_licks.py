@@ -131,23 +131,23 @@ def lick_classification(lick_file_path: str):
 def select_N_lick_samples(n: int):
     lick_samples = []
     
-    FSM_regular_fast = r"/Users/ser910/Downloads/licks_dataset_sampling/FMS/regular/fast"
-    FSM_regular_moderate = r"/Users/ser910/Downloads/licks_dataset_sampling/FMS/regular/moderate"
-    FSM_regular_slow = r"/Users/ser910/Downloads/licks_dataset_sampling/FMS/regular/slow"
+    FSM_regular_fast = r"licks_dataset_sampling/FMS/regular/fast"
+    FSM_regular_moderate = r"licks_dataset_sampling/FMS/regular/moderate"
+    FSM_regular_slow = r"licks_dataset_sampling/FMS/regular/slow"
     
-    FSM_repetition_fast = r"/Users/ser910/Downloads/licks_dataset_sampling/FMS/repetition/fast"
-    FSM_repetition_moderate = r"/Users/ser910/Downloads/licks_dataset_sampling/FMS/repetition/moderate"
-    FSM_repetition_slow = r"/Users/ser910/Downloads/licks_dataset_sampling/FMS/repetition/slow"
+    FSM_repetition_fast = r"licks_dataset_sampling/FMS/repetition/fast"
+    FSM_repetition_moderate = r"licks_dataset_sampling/FMS/repetition/moderate"
+    FSM_repetition_slow = r"licks_dataset_sampling/FMS/repetition/slow"
     
-    FSM_repetition_with_pause_fast = r"/Users/ser910/Downloads/licks_dataset_sampling/FMS/repetition_with_pause/fast"
-    FSM_repetition_with_pause_moderate = r"/Users/ser910/Downloads/licks_dataset_sampling/FMS/repetition_with_pause/moderate"
+    FSM_repetition_with_pause_fast = r"licks_dataset_sampling/FMS/repetition_with_pause/fast"
+    FSM_repetition_with_pause_moderate = r"licks_dataset_sampling/FMS/repetition_with_pause/moderate"
     
-    FSM_with_pause_fast = r"/Users/ser910/Downloads/licks_dataset_sampling/FMS/with_pause/fast"
-    FSM_with_pause_moderate = r"/Users/ser910/Downloads/licks_dataset_sampling/FMS/with_pause/moderate"
-    FSM_with_pause_slow = r"/Users/ser910/Downloads/licks_dataset_sampling/FMS/with_pause/slow"
+    FSM_with_pause_fast = r"licks_dataset_sampling/FMS/with_pause/fast"
+    FSM_with_pause_moderate = r"licks_dataset_sampling/FMS/with_pause/moderate"
+    FSM_with_pause_slow = r"licks_dataset_sampling/FMS/with_pause/slow"
 
-    turnaround = r"/Users/ser910/Downloads/licks_dataset_sampling/turnaround"
-    turnaround_with_pause = r"/Users/ser910/Downloads/licks_dataset_sampling/turnaround_with_pause"
+    turnaround = r"licks_dataset_sampling/turnaround"
+    turnaround_with_pause = r"licks_dataset_sampling/turnaround_with_pause"
 
 
     # List all files in the FSM directory 
