@@ -251,7 +251,7 @@ def optimize(licks_list, p, b):
             Subtours.append(Subtour)
         
         for subtour in Subtours:
-            model += lpSum(x[edge[0], edge[1]] for edge in subtour) == len(subtour) - 1 # Still needs to be validated
+            model += lpSum(x[edge[0], edge[1]] for edge in subtour) <= len(subtour) - 1 # Still needs to be validated
 
 
 
