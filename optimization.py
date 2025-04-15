@@ -133,8 +133,7 @@ def optimize(licks_list, p, b):
 
     model += lpSum(c[i] * y[i] for i in L_prime) == b  # Constraint (4)
 
-    model += lpSum(y[i] for i in R) == r  # Constraint (5) (modified from the formulation on the paper, <=,
-                                        # given its constraint determined on table 3 of the paper, =1)
+    model += lpSum(y[i] for i in R) <= r  # Constraint (5) 
     model += lpSum(y[i] for i in P) <= s  # Constraint (6)
 
     # Constraint (7)
