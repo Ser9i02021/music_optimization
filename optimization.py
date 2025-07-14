@@ -7,6 +7,8 @@ from pulp import LpProblem, LpVariable, lpSum, LpMinimize, LpBinary
 from pulp import *
 from collections import defaultdict
 
+import time
+
 
 
 def power_set(iterable, min_size, max_size):
@@ -96,6 +98,12 @@ def optimize(licks_list, p, b):
     model += x[0, L[-1]] == 0
 
     # (2)
+    '''
+    for i in L_prime:
+        L_minus_zero = L.copy()
+        L_minus_zero.remove(L[0])
+        model += lpSum(x[i, j] for j in L_minus_zero if (i, j) in A) == y[i]
+        '''
     for i in L:
         if i == 0:
             model += lpSum(x[i, j] for j in L if (i, j) in A) == 1
@@ -103,7 +111,7 @@ def optimize(licks_list, p, b):
             model += lpSum(x[i, j] for j in L if (i, j) in A) == y[i]
         else:
             model += lpSum(x[i, j] for j in L if (i, j) in A) == 0
-
+        
 
     '''
     L_minus_n_plus_1 = L.copy()
@@ -113,6 +121,12 @@ def optimize(licks_list, p, b):
         model += lpSum(x[i, j] for j in L_minus_n_plus_1 if (i, j) in A) == y[i]
     '''
     # (3)
+    '''
+    for j in L_prime:
+        L_minus_n_plus_1 = L.copy()
+        L_minus_n_plus_1.remove(L[-1])
+        model += lpSum(x[i, j] for i in L_minus_n_plus_1 if (i, j) in A) == y[j]
+        '''
     for j in L:
         if j == 0:
             model += lpSum(x[i, j] for i in L if (i, j) in A) == 0
@@ -120,7 +134,7 @@ def optimize(licks_list, p, b):
             model += lpSum(x[i, j] for i in L if (i, j) in A) == y[j]
         else:
             model += lpSum(x[i, j] for i in L if (i, j) in A) == 1
-
+        
 
 
     '''
@@ -133,8 +147,9 @@ def optimize(licks_list, p, b):
 
     model += lpSum(c[i] * y[i] for i in L_prime) == b  # Constraint (4)
 
-    model += lpSum(y[i] for i in R) <= r  # Constraint (5) 
-    model += lpSum(y[i] for i in P) <= s  # Constraint (6)
+    model += lpSum(y[i] for i in R) <= r  # Constraint (5) (modified from the formulation on the paper, <=,
+                                        # given its constraint determined on table 3 of the paper, =1)
+    model += lpSum(y[i] for i in P) <= s  # Constrxaint (6)
 
     # Constraint (7)
     L_prime_minus_T = L_prime.copy()
@@ -203,7 +218,9 @@ def optimize(licks_list, p, b):
 
 
     # Solve the model
+    subtours_count = 0
     while True:
+        start_time = time.time() 
         model.solve()
         # Every iteration, we try to find a solution. Then, we check for subtours.
         # If there are no subtours, the solution is adopted, otherwise, new constraints are setted
@@ -227,7 +244,12 @@ def optimize(licks_list, p, b):
                         break
 
         if len(Z) == 0:
+            end_time = time.time()
+            time_taken = end_time - start_time
+            print(f"Solution found in {time_taken:.2f} seconds")
             break
+        
+        subtours_count += 1
         print(Z)
 
         # Remove all remaining cycles
@@ -251,7 +273,20 @@ def optimize(licks_list, p, b):
         
         for subtour in Subtours:
             model += lpSum(x[edge[0], edge[1]] for edge in subtour) <= len(subtour) - 1 # Still needs to be validated
+        '''
+        G = nx.DiGraph()
+        G.add_edges_from(Z)
+        subtours = list(nx.simple_cycles(G))
+        from itertools import product
 
+        if len(subtours) == 0:
+            break
+
+        for subtour in subtours:
+            subtour.append(subtour[0])
+            print(subtour)
+            model += lpSum(x[i, j] for (i, j) in product(subtour, subtour) if i != j) <= len(subtour) - 1
+        '''
 
 
 
@@ -306,7 +341,7 @@ def optimize(licks_list, p, b):
 
     #print(file_paths_for_the_ordered_licks_in_the_solution)
     
-    return file_paths_for_the_ordered_licks_in_the_solution
+    return file_paths_for_the_ordered_licks_in_the_solution, model.objective.value(), subtours_count, time_taken
 
 
 
