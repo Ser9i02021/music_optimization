@@ -149,7 +149,7 @@ def optimize(licks_list, p, b):
 
     model += lpSum(y[i] for i in R) <= r  # Constraint (5) (modified from the formulation on the paper, <=,
                                         # given its constraint determined on table 3 of the paper, =1)
-    model += lpSum(y[i] for i in P) <= s  # Constrxaint (6)
+    model += lpSum(y[i] for i in P) <= s  # Constraint (6)
 
     # Constraint (7)
     L_prime_minus_T = L_prime.copy()
@@ -341,7 +341,7 @@ def optimize(licks_list, p, b):
 
     #print(file_paths_for_the_ordered_licks_in_the_solution)
     
-    return file_paths_for_the_ordered_licks_in_the_solution, model.objective.value(), subtours_count, time_taken
+    return graph_path_vertices_ordered, file_paths_for_the_ordered_licks_in_the_solution, model.objective.value(), subtours_count, time_taken
 
 
 
