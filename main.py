@@ -8,11 +8,11 @@ import pickle
 def main():
     # (1) Data Input
     # (2) Selection of Subset of Licks
-    for i in range(1, 11):
+    for i in range(1, 2):
         filename = f"licks_list_{i}.pkl"
         
         # Select 30 random licks plus initial and final dummy licks
-        licks_list = select_N_lick_samples(62, 2) # Select 30 random licks plus inital and final dummy licks
+        licks_list = select_N_lick_samples(14, 2) # Select 30 random licks plus inital and final dummy licks
                                                 # If the user has specified the desired tempo of the
                                                 # solo as 100 BPM (1: moderate), then the subset will consist of
                                                 # random licks taken from the original database with this same tempo.
@@ -21,11 +21,13 @@ def main():
         p = build_cost_matrix(licks_list)
 
         # (4) Optimization
-        file_paths_for_the_ordered_licks_in_the_solution, obj_val, subt_count, t_t_ = optimize(licks_list, p, 11)
+        graph_path_vertices_ordered, file_paths_for_the_ordered_licks_in_the_solution, obj_val, subt_count, t_t_ = optimize(licks_list, p, 11)
 
         with open(filename, 'wb') as f:
             pickle.dump({
                 'licks_list': licks_list,
+                'graph_path_vertices_ordered': graph_path_vertices_ordered,
+                'file_paths_for_the_ordered_licks_in_the_solution': file_paths_for_the_ordered_licks_in_the_solution,
                 'obj_val': obj_val,
                 'subt_count': subt_count,
                 'time_taken': t_t_
@@ -50,19 +52,29 @@ def load_chosen_licks_and_obj_val_and_subt_count_from_a_file(file_number: int) -
         with open(filename, 'rb') as f:
             data = pickle.load(f)
     
-    return data['licks_list'], data['obj_val'], data['subt_count'], data['time_taken']
+    return data['licks_list'], data['graph_path_vertices_ordered'], data['file_paths_for_the_ordered_licks_in_the_solution'], data['obj_val'], data['subt_count'], data['time_taken']
     
 if __name__ == "__main__":
     main()
-    for i in range(1, 11):
-        l, o, s, t = load_chosen_licks_and_obj_val_and_subt_count_from_a_file(i)
-        print(o, s, t)
+    
+    for i in range(1, 2):
+        l, vo, fpo, o, s, t = load_chosen_licks_and_obj_val_and_subt_count_from_a_file(i)
+        print(vo, fpo, o, s, t)
 
-average_obj_val = sum(o for _, o, _, _ in [load_chosen_licks_and_obj_val_and_subt_count_from_a_file(i) for i in range(1, 11)]) / 10
+licks_chosen_from_full_dataset = [l for l, _, _, _, _, _ in [load_chosen_licks_and_obj_val_and_subt_count_from_a_file(i) for i in range(1, 2)]]
+print(f"Chosen licks from full dataset: {licks_chosen_from_full_dataset}")
+
+vertices_ordered = [vo for _, vo, _, _, _, _ in [load_chosen_licks_and_obj_val_and_subt_count_from_a_file(i) for i in range(1, 2)]]
+print(f"Vertices ordered: {vertices_ordered}")
+
+licks_used_in_the_solution = [fpo for _, _, fpo, _, _, _ in [load_chosen_licks_and_obj_val_and_subt_count_from_a_file(i) for i in range(1, 2)]]
+print(f"Licks used in the solution: {licks_used_in_the_solution}")
+
+average_obj_val = sum(o for _, _, _, o, _, _ in [load_chosen_licks_and_obj_val_and_subt_count_from_a_file(i) for i in range(1, 2)]) / 1
 print(f"Average objective value: {average_obj_val}")
 
-average_subt_count = sum(s for _, _, s, _ in [load_chosen_licks_and_obj_val_and_subt_count_from_a_file(i) for i in range(1, 11)]) / 10
+average_subt_count = sum(s for _, _, _, _, s, _ in [load_chosen_licks_and_obj_val_and_subt_count_from_a_file(i) for i in range(1, 2)]) / 1
 print(f"Average number of subtours: {average_subt_count:.2f}")
 
-average_time_taken = sum(t for _, _, _, t in [load_chosen_licks_and_obj_val_and_subt_count_from_a_file(i) for i in range(1, 11)]) / 10
+average_time_taken = sum(t for _, _, _, _, _, t in [load_chosen_licks_and_obj_val_and_subt_count_from_a_file(i) for i in range(1, 2)]) / 1
 print(f"Average time taken: {average_time_taken:.2f} seconds")
